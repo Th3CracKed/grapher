@@ -1,12 +1,11 @@
 package grapher.ui;
 
+import java.util.Optional;
 import javafx.application.Application;
-import javafx.beans.InvalidationListener;
 import javafx.beans.Observable;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.scene.Group;
 import javafx.stage.Stage;
@@ -16,6 +15,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ListView;
 import javafx.scene.control.SelectionMode;
 import javafx.scene.control.SplitPane;
+import javafx.scene.control.TextInputDialog;
 import javafx.scene.control.ToolBar;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
@@ -23,13 +23,14 @@ import javafx.scene.layout.VBox;
 
 
 public class Main extends Application {
+        @Override
 	public void start(Stage stage) {
 		BorderPane root = new BorderPane();
                 ObservableList<String> functNames = FXCollections.observableArrayList();
-                //recuperer les parametres passer au programme 
-                for(String param: getParameters().getRaw()) {
+                //Recuperer les parametres passer au programme
+                getParameters().getRaw().forEach((param) -> {
                     functNames.add(param);
-                }
+                });
                 
                 ListView<String> listView = new ListView<>(functNames);
                 listView.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
@@ -37,7 +38,8 @@ public class Main extends Application {
                 GrapherCanvas grapher = new GrapherCanvas(functNames,selectionCourrante);
                 root.setCenter(grapher);
                 selectionCourrante.addListener((Observable o) -> {
-                    grapher.redraw();// ou bien recuperer le GraphicsContext est faire setLineWidth
+                    System.out.println("listner");
+                    grapher.redraw();
                     System.out.println(listView.getSelectionModel().getSelectedItems());
                 });
                 
@@ -45,11 +47,26 @@ public class Main extends Application {
                 addBtn.setPrefSize(40, 40);
                 addBtn.setOnAction((ActionEvent event) -> {
                     System.out.println("Add");
+                    TextInputDialog inputDialog = new TextInputDialog("Expression");
+                    inputDialog.setTitle("Expression");
+                    inputDialog.setHeaderText("Nouvelle expression : ");
+                    inputDialog.setContentText("expression(x)");
+
+                    Optional<String> resultat = inputDialog.showAndWait();
+
+                    resultat.ifPresent(functName -> {
+                        functNames.add(functName);
+                        grapher.setFunctions(functNames);//update grapher with new funct list
+                    });
                 });
                 Button deleteBtn = new Button("-");
                 deleteBtn.setPrefSize(40, 40);
                 deleteBtn.setOnAction((ActionEvent event) -> {
                     System.out.println("Delete");
+                    selectionCourrante.forEach((functName) -> {
+                        functNames.remove(functName);
+                    });  
+                    grapher.setFunctions(functNames);
                 });
                 
                 HBox hbox = new HBox(50);

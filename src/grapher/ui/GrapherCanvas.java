@@ -46,16 +46,24 @@ public class GrapherCanvas extends Canvas {
 		xmin = -PI/2.; xmax = 3*PI/2;
 		ymin = -1.5;   ymax = 1.5;
 		functionsSelectionne = selectionCourrante;
-		for(String functName: functNames) {
-			functions.add(FunctionFactory.createFunction(functName));
-		}
+                functNames.forEach((functName) -> {
+                    functions.add(FunctionFactory.createFunction(functName));
+                });
                 addEventHandler(MouseEvent.ANY, new Interaction(this));
                 addEventHandler(ScrollEvent.ANY, (ScrollEvent event) -> {
                     Point2D pointDepart = new Point2D(event.getX(), event.getY());
                     zoom(pointDepart, event.getDeltaY());
                 });
 	}
-	
+        //TODO Demander au prof s'il y a moyen d'utiliser observableList sans passer par Vector (functions)
+        public void setFunctions(ObservableList<String> functNames) {
+            functions.clear();
+            functNames.forEach((functName) -> {
+                    functions.add(FunctionFactory.createFunction(functName));
+            });
+            redraw();
+        }
+        
 	public double minHeight(double width)  { return HEIGHT;}
 	public double maxHeight(double width)  { return Double.MAX_VALUE; }
 	public double minWidth(double height)  { return WIDTH;}
