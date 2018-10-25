@@ -1,5 +1,7 @@
 package grapher.ui;
 
+import grapher.fc.Function;
+import grapher.fc.FunctionFactory;
 import java.util.Optional;
 import javafx.application.Application;
 import javafx.beans.Observable;
@@ -33,17 +35,17 @@ import javafx.scene.layout.VBox;
 public class Main extends Application {
         @Override
 	public void start(Stage stage) {
-		BorderPane root = new BorderPane();
-                ObservableList<String> functNames = FXCollections.observableArrayList();
+		BorderPane rootborderPane = new BorderPane();
+                ObservableList<Function> functList = FXCollections.observableArrayList();
                 //Recuperer les parametres passer au programme
                 getParameters().getRaw().forEach((param) -> {
-                    functNames.add(param);
+                    functList.add(FunctionFactory.createFunction(param));
                 });
                 
-                ListView<String> listView = new ListView<>(functNames);
+                ListView<Function> listView = new ListView<>(functList);
                 listView.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
-                ObservableList<String> selectionCourrante = listView.getSelectionModel().getSelectedItems();//se mets automatiquement a jour
-                GrapherCanvas grapher = new GrapherCanvas(functNames,selectionCourrante);
+                ObservableList<Function> selectionCourrante = listView.getSelectionModel().getSelectedItems();//se mets automatiquement a jour
+                GrapherCanvas grapher = new GrapherCanvas(functList,selectionCourrante);
                 selectionCourrante.addListener((Observable o) -> {
                     grapher.redraw();
                     System.out.println(listView.getSelectionModel().getSelectedItems());
@@ -61,18 +63,18 @@ public class Main extends Application {
                     Optional<String> resultat = inputDialog.showAndWait();
 
                     resultat.ifPresent(functName -> {
-                        functNames.add(functName);
-                        grapher.setFunctions(functNames);//update grapher with new funct list
+                        functList.add(FunctionFactory.createFunction(functName));
+                        grapher.redraw();
                     });
                 });
                 Button deleteBtn = new Button("-");
                 deleteBtn.setPrefSize(40, 40);
                 deleteBtn.setOnAction((ActionEvent event) -> {
                     System.out.println("Delete Button");
-                    selectionCourrante.forEach((functName) -> {
-                        functNames.remove(functName);
-                    });  
-                    grapher.setFunctions(functNames);
+                    while(!selectionCourrante.isEmpty()){
+                        functList.remove(selectionCourrante.get(0));
+                        grapher.redraw();
+                    }
                 });
                 
                 HBox hbox = new HBox(50);
@@ -91,31 +93,31 @@ public class Main extends Application {
                     Optional<String> resultat = inputDialog.showAndWait();
 
                     resultat.ifPresent(functName -> {
-                        functNames.add(functName);
-                        grapher.setFunctions(functNames);//update grapher with new funct list
+                        functList.add(FunctionFactory.createFunction(functName));
+                        grapher.redraw();
                     });
                 });
                 MenuItem deleteMenu = new MenuItem("Supprimer");
                 deleteMenu.setAccelerator(new KeyCodeCombination(KeyCode.BACK_SPACE, KeyCombination.CONTROL_DOWN));
                 deleteMenu.setOnAction((ActionEvent e) -> {
                     System.out.println("Delete Menu");
-                    selectionCourrante.forEach((functName) -> {
-                        functNames.remove(functName);
-                    });  
-                    grapher.setFunctions(functNames);
+                    while(!selectionCourrante.isEmpty()){
+                        functList.remove(selectionCourrante.get(0));
+                        grapher.redraw();
+                    }
                 });
                 final Menu menu = new Menu("Expression");
                 menu.getItems().addAll(addMenu,new SeparatorMenuItem(),deleteMenu);
                 MenuBar menuBar = new MenuBar();
                 menuBar.getMenus().addAll(menu);
-                root.setTop(menuBar);
+                rootborderPane.setTop(menuBar);
                 VBox vbox = new VBox(20);
                 vbox.getChildren().addAll(listView,toolBar);
 		SplitPane rootSplitPane = new SplitPane();
                 rootSplitPane.getItems().addAll(new Group(vbox),grapher);
-                root.setCenter(rootSplitPane);
+                rootborderPane.setCenter(rootSplitPane);
 		stage.setTitle("grapher");
-		stage.setScene(new Scene(root));
+		stage.setScene(new Scene(rootborderPane));
 		stage.show();
 	}
 	public static void main(String[] args) {

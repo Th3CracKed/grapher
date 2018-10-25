@@ -2,14 +2,11 @@ package grapher.ui;
 
 import static java.lang.Math.*;
 
-import java.util.Vector;
 
 import javafx.util.converter.DoubleStringConverter;
 
-import javafx.application.Application.Parameters;
 
 import javafx.geometry.Point2D;
-import javafx.geometry.Rectangle2D;
 
 import javafx.scene.paint.Color;
 import javafx.scene.canvas.GraphicsContext;
@@ -18,7 +15,6 @@ import javafx.scene.canvas.Canvas;
 
 import grapher.fc.*;
 import javafx.collections.ObservableList;
-import javafx.event.EventHandler;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
 
@@ -37,32 +33,22 @@ public class GrapherCanvas extends Canvas {
 
 	protected double xmin, xmax;
 	protected double ymin, ymax;
-
-	protected Vector<Function> functions = new Vector<Function>();
-	protected ObservableList<String> functionsSelectionne;
         
-	public GrapherCanvas(ObservableList<String> functNames,ObservableList<String> selectionCourrante) {
+	protected ObservableList<Function> functionList;
+	protected ObservableList<Function> functionsSelectionne;
+        
+	public GrapherCanvas(ObservableList<Function> functList,ObservableList<Function> selectionCourrante) {
 		super(WIDTH, HEIGHT);
 		xmin = -PI/2.; xmax = 3*PI/2;
 		ymin = -1.5;   ymax = 1.5;
+                functionList = functList;
 		functionsSelectionne = selectionCourrante;
-                functNames.forEach((functName) -> {
-                    functions.add(FunctionFactory.createFunction(functName));
-                });
                 addEventHandler(MouseEvent.ANY, new Interaction(this));
                 addEventHandler(ScrollEvent.ANY, (ScrollEvent event) -> {
                     Point2D pointDepart = new Point2D(event.getX(), event.getY());
                     zoom(pointDepart, event.getDeltaY());
                 });
 	}
-        //TODO Demander au prof s'il y a moyen d'utiliser observableList sans passer par Vector (functions)
-        public void setFunctions(ObservableList<String> functNames) {
-            functions.clear();
-            functNames.forEach((functName) -> {
-                    functions.add(FunctionFactory.createFunction(functName));
-            });
-            redraw();
-        }
         
 	public double minHeight(double width)  { return HEIGHT;}
 	public double maxHeight(double width)  { return Double.MAX_VALUE; }
@@ -121,9 +107,9 @@ public class GrapherCanvas extends Canvas {
 			Xs[i] = X(x);
 		}
 
-		for(Function f: functions) {
+		for(Function f: functionList) {
                         //Si la function est selectionné il faut passer le polyline en gras
-                        if(functionsSelectionne.contains(f.toString())){
+                        if(functionsSelectionne.contains(f)){
                             gc.setLineWidth(3);
                         }else{
                             gc.setLineWidth(1);//pour ne pas mettre en gras les fonctions qui sont pas selectionner
