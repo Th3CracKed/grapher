@@ -8,7 +8,6 @@ import javafx.beans.Observable;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.scene.Group;
 import javafx.stage.Stage;
@@ -24,11 +23,13 @@ import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.control.SplitPane;
 import javafx.scene.control.TextInputDialog;
 import javafx.scene.control.ToolBar;
+import javafx.scene.control.cell.TextFieldListCell;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.util.StringConverter;
 
 
 
@@ -43,6 +44,27 @@ public class Main extends Application {
                 });
                 
                 ListView<Function> listView = new ListView<>(functList);
+                listView.setEditable(true);
+                listView.setCellFactory(TextFieldListCell.forListView(new StringConverter<Function>() {
+                    @Override
+                    public String toString(Function object) {
+                        return object.toString();
+                    }
+
+                    @Override
+                    public Function fromString(String string) {
+                        return FunctionFactory.createFunction(string);
+                    }
+                }));		
+
+		listView.setOnEditCommit((ListView.EditEvent<Function> event) -> {
+                    System.out.println("Modification Confirmer");
+                    functList.set(event.getIndex(), event.getNewValue());
+                });
+                
+                listView.setOnEditCancel((event) -> {
+                    System.out.println("Modification Annuler");
+                });
                 listView.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
                 ObservableList<Function> selectionCourrante = listView.getSelectionModel().getSelectedItems();//se mets automatiquement a jour
                 GrapherCanvas grapher = new GrapherCanvas(functList,selectionCourrante);
@@ -71,8 +93,9 @@ public class Main extends Application {
                 deleteBtn.setPrefSize(40, 40);
                 deleteBtn.setOnAction((ActionEvent event) -> {
                     System.out.println("Delete Button");
-                    while(!selectionCourrante.isEmpty()){
-                        functList.remove(selectionCourrante.get(0));
+                    int taille = selectionCourrante.size();
+                    for(int i = 0; i < taille;i++){
+                        functList.remove(selectionCourrante.get(i));
                         grapher.redraw();
                     }
                 });
@@ -101,8 +124,9 @@ public class Main extends Application {
                 deleteMenu.setAccelerator(new KeyCodeCombination(KeyCode.BACK_SPACE, KeyCombination.CONTROL_DOWN));
                 deleteMenu.setOnAction((ActionEvent e) -> {
                     System.out.println("Delete Menu");
-                    while(!selectionCourrante.isEmpty()){
-                        functList.remove(selectionCourrante.get(0));
+                    int taille = selectionCourrante.size();
+                    for(int i = 0; i < taille;i++){
+                        functList.remove(selectionCourrante.get(i));
                         grapher.redraw();
                     }
                 });
