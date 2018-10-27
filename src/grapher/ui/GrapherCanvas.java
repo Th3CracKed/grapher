@@ -13,7 +13,6 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.canvas.Canvas;
 
 
-import grapher.fc.*;
 import javafx.collections.ObservableList;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
@@ -34,10 +33,10 @@ public class GrapherCanvas extends Canvas {
 	protected double xmin, xmax;
 	protected double ymin, ymax;
         
-	protected ObservableList<Function> functionList;
-	protected ObservableList<Function> functionsSelectionne;
+	protected ObservableList<rowModel> functionList;
+	protected ObservableList<rowModel> functionsSelectionne;
         
-	public GrapherCanvas(ObservableList<Function> functList,ObservableList<Function> selectionCourrante) {
+	public GrapherCanvas(ObservableList<rowModel> functList,ObservableList<rowModel> selectionCourrante) {
 		super(WIDTH, HEIGHT);
 		xmin = -PI/2.; xmax = 3*PI/2;
 		ymin = -1.5;   ymax = 1.5;
@@ -107,17 +106,18 @@ public class GrapherCanvas extends Canvas {
 			Xs[i] = X(x);
 		}
 
-		for(Function f: functionList) {
+		for(rowModel row: functionList) {
+                        gc.setStroke(row.getColor().getValue());//definir la couleur du polyline selon la couleur choisit
                         //Si la function est selectionné il faut passer le polyline en gras
-                        if(functionsSelectionne.contains(f)){
+                        if(functionsSelectionne.contains(row)){
                             gc.setLineWidth(3);
                         }else{
-                            gc.setLineWidth(1);//pour ne pas mettre en gras les fonctions qui sont pas selectionner
+                            gc.setLineWidth(1);//pour ne pas mettre en gras les fonctions qui ne sont pas selectionner
                         }
 			// y values
 			double Ys[] = new double[N];
 			for(int i = 0; i < N; i++) {
-				Ys[i] = Y(f.y(xs[i]));
+				Ys[i] = Y(row.getFunction().y(xs[i]));
 			}
 			
 			gc.strokePolyline(Xs, Ys, N);

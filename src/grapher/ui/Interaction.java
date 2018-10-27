@@ -8,8 +8,6 @@ package grapher.ui;
 import javafx.event.EventHandler;
 import javafx.geometry.Point2D;
 import javafx.scene.Cursor;
-import javafx.scene.canvas.Canvas;
-import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.input.MouseEvent;
 
 /**
@@ -17,7 +15,7 @@ import javafx.scene.input.MouseEvent;
  * @author driowyaa
  */
 public class Interaction implements EventHandler<MouseEvent>{
-    private GrapherCanvas grapher;
+    private final GrapherCanvas grapher;
     private enum State{IDLE,WAITING_G,WAITING_D,DRAGGING,SELECTING};
     private State state = State.IDLE;
     private Point2D pointDepart;
