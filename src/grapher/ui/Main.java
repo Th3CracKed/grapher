@@ -10,6 +10,8 @@ import javafx.event.ActionEvent;
 import javafx.stage.Stage;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.ColorPicker;
 import javafx.scene.control.TableView;
@@ -56,7 +58,7 @@ public class Main extends Application {
                 TableView<rowModel> tableView = new TableView<>(functList);
                 tableView.setEditable(true);
                 tableView.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
-                tableView.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+                tableView.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);//permet au colonnes d'occuper toute l'espace disponible
                 //liste de ligne selectionner, se mettent automatiquement a jour
                 selectionCourrante = tableView.getSelectionModel().getSelectedItems();
                 //mettre a jour le graphe si la selection a changer, permet de redessiner les functions selectionné en gras
@@ -113,23 +115,30 @@ public class Main extends Application {
             });
         }
         
-        private void deleteAction() {
-            functList.removeAll(selectionCourrante);
+        private Boolean deleteAction() {
+            Boolean resultat = functList.removeAll(selectionCourrante);
             grapher.redraw();
+            return resultat;
         }
 
         private MenuBar getMenuBar() {
             MenuItem addMenu = new MenuItem("Ajouter");
             addMenu.setAccelerator(new KeyCodeCombination(KeyCode.N, KeyCombination.CONTROL_DOWN));
             addMenu.setOnAction((ActionEvent e) -> {
-            System.out.println("Add Menu");
-            addAction();
+                System.out.println("Add Menu");
+                try{
+                    addAction();
+                }catch(Exception exception ){
+                    addAlert();
+                }
             });
             MenuItem deleteMenu = new MenuItem("Supprimer");
             deleteMenu.setAccelerator(new KeyCodeCombination(KeyCode.BACK_SPACE, KeyCombination.CONTROL_DOWN));
             deleteMenu.setOnAction((ActionEvent e) -> {
                 System.out.println("Delete Menu");
-                deleteAction();
+                //supprimer les elements selectionner, si aucun element n'est selectionner afficher une alert
+                if(!deleteAction())
+                    deleteAlert();
             });
             final Menu menu = new Menu("Expression");
             menu.getItems().addAll(addMenu,new SeparatorMenuItem(),deleteMenu);
@@ -143,7 +152,11 @@ public class Main extends Application {
             addBtn.setPrefSize(40, 40);
             addBtn.setOnAction((ActionEvent event) -> {
                 System.out.println("Add Button");
-                addAction();
+                try{
+                    addAction();
+                }catch(Exception e ){
+                    addAlert();
+                }
             });
             return addBtn;
         }
@@ -153,8 +166,26 @@ public class Main extends Application {
             deleteBtn.setPrefSize(40, 40);
             deleteBtn.setOnAction((ActionEvent event) -> {
                 System.out.println("Delete Button");
-                deleteAction();
+                //supprimer les elements selectionner, si aucun element n'est selectionner afficher une alert
+                if(!deleteAction())
+                    deleteAlert();
             });
             return deleteBtn;
+        }
+
+        private void addAlert() {
+            Alert alert = new Alert(AlertType.ERROR);
+            alert.setTitle("ERROR");
+            alert.setHeaderText("Fonction Inccorect");
+            alert.setContentText("la fonction n'est pas correct, essayez une valeur comme x*x");
+            alert.showAndWait();
+        }
+
+        private void deleteAlert() {
+            Alert alert = new Alert(AlertType.ERROR);
+            alert.setTitle("ERROR");
+            alert.setHeaderText("Aucune ligne selectionner");
+            alert.setContentText("Veuillez selectionner une ligne");
+            alert.showAndWait();
         }
 }
