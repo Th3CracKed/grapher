@@ -110,7 +110,12 @@ public class Main extends Application {
             Optional<String> resultat = inputDialog.showAndWait();
 
             resultat.ifPresent(functName -> {
-                functList.add(new rowModel(FunctionFactory.createFunction(functName),new ColorPicker(Color.BLACK)));
+                ColorPicker color = new ColorPicker(Color.BLACK);//couleur par default
+                    //si la couleur change -> redessiner le graphe
+                    color.setOnAction((ActionEvent event) -> {
+                        grapher.redraw();
+                    });
+                functList.add(new rowModel(FunctionFactory.createFunction(functName),color));
                 grapher.redraw();
             });
         }
